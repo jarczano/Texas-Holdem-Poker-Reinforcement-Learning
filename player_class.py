@@ -22,6 +22,7 @@ class Player(object):
         self.win_chips = 0
         self.decision = False
         self.action_used = None
+        self.reward = 0
 
         Player._position += 1
 

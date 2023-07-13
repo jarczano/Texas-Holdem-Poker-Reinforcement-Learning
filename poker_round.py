@@ -3,7 +3,7 @@ from auction import auction
 from poker_score import players_score
 from split_pot import one_player_win, change_players_positions, split_pot
 from player_class import Player
-from setting import BB, SB
+from setting import BB, SB, show_game
 
 
 def poker_round():
@@ -14,18 +14,19 @@ def poker_round():
     # Take blinds from players
     if player_list[-1].stack > BB:
         player_list[-1].blind(BB)
-        #print(player_list[-1].name, 'BB')
     else:
         player_list[-1].blind(player_list[-1].stack)
-
         player_list[-1].allin()
 
     if player_list[-2].stack > SB:
         player_list[-2].blind(SB)
-        #print(player_list[-2].name, 'SB')
     else:
         player_list[-2].blind(player_list[-2].stack)
         player_list[-2].allin()
+
+    if show_game:
+        print(player_list[-1].name, 'BB')
+        print(player_list[-2].name, 'SB')
 
     # Create a deck of cards
     deck = ['2C', '3C', '4C', '5C', '6C', '7C', '8C', '9C', 'TC', 'JC', 'QC', 'KC', 'AC', '2S', '3S', '4S', '5S', '6S',
@@ -37,24 +38,29 @@ def poker_round():
         player.cards = random.sample(deck, 2)
         [deck.remove(player.cards[i]) for i in range(2)]
 
-    #for player in player_list:
-        #print(player.name, player.cards)
-
-
+    if show_game:
+        for player in player_list:
+            print(player.name, player.cards)
 
     # Check how many players are in the game and all-in
     number_live_players = sum([player.live for player in player_list])  # 1
     number_allin_players = sum([player.alin for player in player_list]) # 0
-
 
     if number_live_players > 1:
         # First auction
+
+        if show_game:
+            print("Preflop")
         yield from auction()
 
+        #for player in player_list:
+        #    player.reward = 0
     # Check how many players are in the game and all-in
     number_live_players = sum([player.live for player in player_list])  # 1
     number_allin_players = sum([player.alin for player in player_list]) # 0
 
+    #for player in player_list:
+   #     player.reward = 0
 
     # change order decision player
     if len(player_list_chair) == 2:
@@ -64,20 +70,24 @@ def poker_round():
 
     # If there is only one player left in the game, he wins
     if number_live_players + number_allin_players == 1:
-        yield from one_player_win()
+        #yield from one_player_win()
+        one_player_win()
         #list_winner = one_player_win()
     else:
         # Flop
+
         flop = random.sample(deck, 3)
         [deck.remove(flop[i]) for i in range(3)]
-        #print('Flop: ', flop)
+        common_cards = flop
+        if show_game:
+            print("Flop cards: {}".format(flop))
 
         # Change order decision players
         change_players_positions(shift_decision)
 
         if number_live_players > 1:
             # Second auction
-            yield from auction()
+            yield from auction(common_cards)
 
         # Check how many players are in the game and all-in
         number_live_players = sum([player.live for player in player_list])
@@ -85,8 +95,10 @@ def poker_round():
 
         # If there is only one player left in the game, he wins
         if number_live_players + number_allin_players == 1:
-            yield from one_player_win()
+            #yield from one_player_win()
             #list_winner = one_player_win()
+
+            one_player_win()
             # Return to the original position
             change_players_positions(shift_decision)
         else:
@@ -94,11 +106,14 @@ def poker_round():
             turn = random.sample(deck, 1)
             deck.remove(turn[0])
             common_cards = flop + turn
+
+            if show_game:
+                print("Turn cards: {}".format(common_cards))
             #print('Turn: ', common_cards)
 
             if number_live_players > 1:
                 # Third auction
-                yield from auction()
+                yield from auction(common_cards)
 
             # Check how many players are in the game and all-in
             number_live_players = sum([player.live for player in player_list])
@@ -106,7 +121,8 @@ def poker_round():
 
             # If there is only one player left in the game, he wins
             if number_live_players + number_allin_players == 1:
-                yield from one_player_win()
+                one_player_win()
+                #yield from one_player_win()
                 #list_winner = one_player_win()
                 # Return to the original position
                 change_players_positions(shift_decision)
@@ -117,10 +133,12 @@ def poker_round():
                 deck.remove(river[0])
                 common_cards += river
                 #print('River: ', common_cards)
+                if show_game:
+                    print("River cards: {}".format(common_cards))
 
                 if number_live_players > 1:
                     # Last auction
-                    yield from auction()
+                    yield from auction(common_cards)
 
                 # Check how many players are in the game and all-in
                 number_live_players = sum([player.live for player in player_list])
@@ -128,15 +146,20 @@ def poker_round():
 
                 # If there is only one player left in the game, he wins
                 if number_live_players + number_allin_players == 1:
-                    yield from one_player_win()
+                    #yield from one_player_win()
                     #list_winner = one_player_win()
                     # Return to the original position
+                    one_player_win()
                     change_players_positions(shift_decision)
                 else:
                     # Calculate score players
                     players_score(player_list_chair, common_cards)
+
                     # Split pot
-                    yield from split_pot()
+                    #yield from split_pot()
+                    split_pot()
+
+
                     #list_winner = split_pot()
                     # Return players to the original position
                     change_players_positions(shift_decision)

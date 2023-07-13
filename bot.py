@@ -25,7 +25,7 @@ class AI:
         import random
         from poker_score import players_score
 
-        number_games = 1000
+        number_games = 500
         n_win = 0
         n_tie = 0
         ai = Bot()

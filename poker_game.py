@@ -43,8 +43,10 @@ def game():
     # tutaj tez by musialo zwrocic jaki był ostania action
     for player in player_list_chair:
         if player.kind == 'deepAI':
-            print("poker_game action used", player.action_used)
-            yield np.zeros(4) - 1, 0, True, player.action_used
+            #print("poker_game action used", player.action_used)
+
+            #observation = [p_win, p_tie, pot/2000, care, price_bet / 1000].extend(stage_round)
+            yield np.zeros(7) - 1, player.reward, True, player.action_used
 
 
 '''

@@ -1,7 +1,7 @@
 import numpy as np
 import operator
 from player_class import Player
-
+from setting import show_game
 
 def split_pot():
 
@@ -15,9 +15,10 @@ def split_pot():
         if player.live is False and player.alin is False:
             # nagroda jezeli foldowach
             if player.kind == "deepAI":
-                print("split pot action used1", player.action_used)
+                #print("split pot action used1", player.action_used)
 
-                yield np.zeros(4) - 1, -player.input_stack, False, player.action_used
+                player.reward = -player.input_stack / 1000
+                #yield np.zeros(4) - 1, -player.input_stack, False, player.action_used
             player_list.remove(player)
 
     # To calculate reword function needs sorted players list with a descending order and then ascending input stack
@@ -77,11 +78,14 @@ def split_pot():
         # ale tutaj pomija tych co fold - to chuj dopiszemy
         player_list[i].win(win_value)
         if player_list[i].kind == 'deepAI':
-            print("split pot action used2", player_list[i].action_used, player_list[i].name)
-            yield np.zeros(4) - 1, win_value - player_list[i].input_stack, False, player_list[i].action_used
+            #print("split pot action used2", player_list[i].action_used, player_list[i].name)
+
+            player_list[i].reward = (win_value - player_list[i].input_stack) / 1000
+            #yield np.zeros(4) - 1, win_value - player_list[i].input_stack, False, player_list[i].action_used
 
         #
-        #print(player_list[i].name, 'won ',win_value - player_list[i].input_stack)
+        if show_game:
+            print(player_list[i].name, " with: ",player_list[i].hand,'won ',win_value - player_list[i].input_stack)
         #print(player_list[i].name, player_list[i].stack, player_list[i].input_stack)
     return list_winner
     #print('wklad wlasny: ', wkladwlasny)
@@ -101,13 +105,20 @@ def one_player_win():
             player.win(win_value)
             list_winner.append((player, win_value - player.input_stack))
             if player.kind == 'deepAI':
-                print("split pot action used3", player.action_used)
-                yield np.zeros(4) - 1, win_value - player.input_stack, False, player.action_used
+                #print("split pot action used3", player.action_used)
+                player.reward = (win_value - player.input_stack) / 1000
+                #yield np.zeros(4) - 1, win_value - player.input_stack, False, player.action_used
+            if show_game:
+                print("{} win {}".format(player.name,  win_value - player.input_stack))
         else:
             # Reward for fold for deepAI
             if player.kind == "deepAI":
-                print("split pot action used4", player.action_used)
-                yield np.zeros(4) - 1, -player.input_stack, False, player.action_used
+                #print("split pot action used4", player.action_used)
+                player.reward = -player.input_stack / 1000
+                #yield np.zeros(4) - 1, -player.input_stack, False, player.action_used
+                if show_game:
+                    print("{} win {}".format(player.name, - player.input_stack))
+
     return list_winner
 
 

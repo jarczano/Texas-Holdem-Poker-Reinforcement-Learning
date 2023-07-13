@@ -3,7 +3,7 @@ from player_class import Player
 from bot import AI
 from deepAI import probability_win
 import numpy as np
-from setting import BB
+from setting import BB, show_game
 
 
 def auction(common_cards=None):
@@ -119,13 +119,35 @@ def auction(common_cards=None):
                         price_bet = player.stack
 
                     #observation = [p_win, p_tie, pot/2000, stage/3, players_without_decision, action_info[0]/3, action_info[1]/1000] # len vector 7, one hot encoding ?
-                    observation = [p_win, p_tie, pot/2000, price_bet/1000]
+                    # 2 try
+                    #observation = [p_win, p_tie, pot/2000, price_bet/1000]
+                    # 3 try
+                    # prob win, prob tie, pot, if iam starting,stage round [preflop flop turn river]
+                    if common_cards is None:
+                        stage_round = [1, 0, 0, 0]
+                    elif len(common_cards) == 3:
+                        stage_round = [0, 1, 0, 0]
+                    elif len(common_cards) == 4:
+                        stage_round = [0, 0, 1, 0]
+                    else:
+                        stage_round = [0, 0, 0, 1]
 
+                    # care = False
+                    care = True
+                    for p in player_list:
+                        if p.kind == "AI":
+                            if p.decision:
+                                care = False
+
+                    #observation = [p_win, p_tie, pot/2000, care, price_bet / 1000]#.extend(stage_round)
+                    observation = [p_win, p_tie, pot / 2000]  # .extend(stage_round)
+                    observation.extend(stage_round)
                     reward = 0
                     # reset() zwraca to za yield
                     # step() ustawia action na wektor i odsyła odrazu tam gdzie spotka nastepnego yielda
                     #print("przed yield")
-                    action = yield observation, reward, False, player.action_used
+                    action = yield observation, player.reward, False, player.action_used
+                    player.reward = 0
                     #print("za yield")
                     epsilon = action[0]
                     DNN_answer = action[1:]
@@ -143,9 +165,13 @@ def auction(common_cards=None):
 
                     # there are 5 possible set of action
                     optimal_bet = best_action_index * 25
+                    if optimal_bet > player.stack:
+                        optimal_bet = player.stack
 
-                    if dict_options['check'] and dict_options['raise'] and dict_options['fold'] and dict_options[
-                        'all-in']:
+
+                    #print("dict option", dict_options)
+                    #print('optimal bet ', optimal_bet)
+                    if dict_options['check'] and dict_options['raise']:
                         #print('set 1')
                         if optimal_bet < abs(optimal_bet - min_raise):
                             decision = ['check']
@@ -155,8 +181,7 @@ def auction(common_cards=None):
                             decision = ['raise', min_raise]
 
                     # 2 set
-                    elif dict_options['call'] and dict_options['raise'] and dict_options['fold'] and dict_options[
-                        'all-in']:
+                    elif dict_options['call'] and dict_options['raise']:
                         #print('set 2')
                         if optimal_bet < abs(optimal_bet - call_value):
                             decision = ['fold']
@@ -168,8 +193,7 @@ def auction(common_cards=None):
                             decision = ['raise', min_raise]
 
                     # 3 set
-                    elif dict_options['call'] and not dict_options['raise'] and dict_options['fold'] and dict_options[
-                        'all-in']:
+                    elif dict_options['call'] and not dict_options['raise']:
                         #print('set 3')
                         if optimal_bet < abs(call_value - optimal_bet):
                             decision = ['fold']
@@ -179,8 +203,7 @@ def auction(common_cards=None):
                             decision = ['call']
 
                     # 4 set
-                    elif dict_options['check'] and not dict_options['raise'] and dict_options['fold'] and dict_options[
-                        'all-in']:
+                    elif dict_options['check'] and not dict_options['raise']:
                         #print('set 4')
                         if optimal_bet < abs(optimal_bet - player.stack):
                             decision = ['check']
@@ -188,16 +211,27 @@ def auction(common_cards=None):
                             decision = ['all-in']
 
                     # 5 set
-                    elif not dict_options['call'] and not dict_options['check'] and not dict_options['raise'] and \
-                        dict_options['fold'] and dict_options['all-in']:
+                    elif not dict_options['call'] and not dict_options['check'] and not dict_options['raise']:
                         #print('set 5')
                         if optimal_bet < abs(optimal_bet - player.stack):
                             decision = ['fold']
                         else:
                             decision = ['all-in']
-
+                    #print("ai decision", decision)
                     # processing action
-                    player.action_used = best_action_index
+
+                    # to nie bedzie best index
+                    # convert decision to action_used
+                    if decision == ['fold'] or decision == ['check']:
+                        action_used = 0
+                    elif decision == ['call']:
+                        action_used = (call_value / 25) + 1
+                    elif decision == ['all-in']:
+                        action_used = (player.stack / 25) + 1
+                    elif decision[0] == 'raise':
+                        action_used = (decision[1] / 25) + 1
+
+                    player.action_used = int(action_used)
 
 
                 # Processing of player decision
@@ -208,6 +242,12 @@ def auction(common_cards=None):
                 #else:
                     #print(player.name, decision[0])
                 decision = decision[0]
+
+                if show_game:
+                    if decision == 'raise':
+                        print("{} stack: {} decision: {} {}".format(player.name, player.stack,decision, chips))
+                    else:
+                        print("{} decision: {}".format(player.name, decision))
 
                 if decision == 'call':
                     last_action = ['call', 0]

@@ -2,3 +2,20 @@
 __pycache__/
 logsPoker/
 modelsPoker/
+models/
+retrain.py
+test alg ai.py
+test list.py
+test multi.py
+test multi 2.py
+test predict.py
+test yield.py
+testYield2.py
+train_RL multi 2.py
+train_RL multi 3.py
+train_RL multi 5.py
+train_RL multi 6.py
+train_RL multi.py
+train.py
+
+

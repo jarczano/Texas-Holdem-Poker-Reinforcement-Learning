@@ -10,7 +10,7 @@ def probability_win(own_cards, n_players, common_cards=None):
     import random
     from poker_score import players_score
 
-    number_games = 500
+    number_games = 1000
     n_win = 0
     n_tie = 0
     ai = Bot()
