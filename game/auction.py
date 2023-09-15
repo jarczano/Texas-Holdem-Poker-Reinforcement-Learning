@@ -1,8 +1,9 @@
-from player_class import Player
-from bot import AI
-from deepAI import probability_win
-import numpy as np
+from game.player_class import Player
+from game.bot import AI
+from game.deepAI import probability_win
 from setting import BB, show_game
+
+import numpy as np
 
 
 def auction(common_cards=None):

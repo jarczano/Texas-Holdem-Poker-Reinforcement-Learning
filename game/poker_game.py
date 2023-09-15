@@ -1,6 +1,7 @@
-from player_class import Player
-from poker_round import poker_round
-from split_pot import change_players_positions
+from game.player_class import Player
+from game.poker_round import poker_round
+from game.split_pot import change_players_positions
+
 import numpy as np
 
 

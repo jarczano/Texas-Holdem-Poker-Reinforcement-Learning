@@ -1,8 +1,8 @@
-from keras.models import Sequential, Model, load_model
-from keras.layers import Dense, Conv2D, MaxPool2D, Flatten, Dropout, BatchNormalization, LSTM, Attention, Input, Layer
+from keras.models import Sequential
+from keras.layers import Dense
 import numpy as np
-from player_class import Player
-from poker_game import game
+from game.player_class import Player
+from game.poker_game import game
 from keras.optimizers import Adam
 import time
 import tensorflow

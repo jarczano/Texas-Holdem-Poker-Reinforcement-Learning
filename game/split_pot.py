@@ -1,13 +1,12 @@
-import numpy as np
 import operator
-from player_class import Player
+
+from game.player_class import Player
 from setting import show_game
 
 
 def split_pot():
     # The split_pot function takes one parameter: list of object players.
     # Function changing attribute stack this object and returns how much they win.
-    import operator
     player_list = Player.player_list_chair.copy()
 
     # Remove players which fold

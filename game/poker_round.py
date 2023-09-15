@@ -1,8 +1,9 @@
 import random
-from auction import auction
-from poker_score import players_score
-from split_pot import one_player_win, change_players_positions, split_pot
-from player_class import Player
+
+from game.auction import auction
+from game.poker_score import players_score
+from game.split_pot import one_player_win, change_players_positions, split_pot
+from game.player_class import Player
 from setting import BB, SB, show_game
 
 
