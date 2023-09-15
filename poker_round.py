@@ -7,6 +7,10 @@ from setting import BB, SB, show_game
 
 
 def poker_round():
+    """
+    This function works as generator. Play one round of dealing cards.
+    :return:
+    """
 
     player_list_chair = Player.player_list_chair
     player_list = Player.player_list
@@ -53,14 +57,9 @@ def poker_round():
             print("Preflop")
         yield from auction()
 
-        #for player in player_list:
-        #    player.reward = 0
     # Check how many players are in the game and all-in
     number_live_players = sum([player.live for player in player_list])  # 1
     number_allin_players = sum([player.alin for player in player_list]) # 0
-
-    #for player in player_list:
-   #     player.reward = 0
 
     # change order decision player
     if len(player_list_chair) == 2:
@@ -70,12 +69,9 @@ def poker_round():
 
     # If there is only one player left in the game, he wins
     if number_live_players + number_allin_players == 1:
-        #yield from one_player_win()
         one_player_win()
-        #list_winner = one_player_win()
     else:
         # Flop
-
         flop = random.sample(deck, 3)
         [deck.remove(flop[i]) for i in range(3)]
         common_cards = flop
@@ -95,9 +91,6 @@ def poker_round():
 
         # If there is only one player left in the game, he wins
         if number_live_players + number_allin_players == 1:
-            #yield from one_player_win()
-            #list_winner = one_player_win()
-
             one_player_win()
             # Return to the original position
             change_players_positions(shift_decision)
@@ -109,7 +102,6 @@ def poker_round():
 
             if show_game:
                 print("Turn cards: {}".format(common_cards))
-            #print('Turn: ', common_cards)
 
             if number_live_players > 1:
                 # Third auction
@@ -122,8 +114,6 @@ def poker_round():
             # If there is only one player left in the game, he wins
             if number_live_players + number_allin_players == 1:
                 one_player_win()
-                #yield from one_player_win()
-                #list_winner = one_player_win()
                 # Return to the original position
                 change_players_positions(shift_decision)
             else:
@@ -132,7 +122,6 @@ def poker_round():
                 river = random.sample(deck, 1)
                 deck.remove(river[0])
                 common_cards += river
-                #print('River: ', common_cards)
                 if show_game:
                     print("River cards: {}".format(common_cards))
 
@@ -146,8 +135,6 @@ def poker_round():
 
                 # If there is only one player left in the game, he wins
                 if number_live_players + number_allin_players == 1:
-                    #yield from one_player_win()
-                    #list_winner = one_player_win()
                     # Return to the original position
                     one_player_win()
                     change_players_positions(shift_decision)
@@ -156,15 +143,7 @@ def poker_round():
                     players_score(player_list_chair, common_cards)
 
                     # Split pot
-                    #yield from split_pot()
                     split_pot()
-
-
-                    #list_winner = split_pot()
-                    # Return players to the original position
                     change_players_positions(shift_decision)
 
-    #for player in player_list:
-    #    print(player.name, 'stack: ',player.stack)
 
-# poker_round(player_list)

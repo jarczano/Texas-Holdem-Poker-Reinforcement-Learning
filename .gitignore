@@ -4,11 +4,11 @@ logsPoker/
 modelsPoker/
 models/
 retrain.py
-test alg ai.py
+test/test alg ai.py
 test list.py
 test multi.py
 test multi 2.py
-test predict.py
+test/test predict.py
 test yield.py
 testYield2.py
 train_RL multi 2.py

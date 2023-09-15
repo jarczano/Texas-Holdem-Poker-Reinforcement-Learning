@@ -1,4 +1,3 @@
-import random
 from player_class import Player
 from bot import AI
 from deepAI import probability_win
@@ -22,7 +21,6 @@ def auction(common_cards=None):
     number_player = len(player_list)
 
     every_fold = False
-    last_action = None
 
     # process until every player made decision or every except one fold
     while number_decisions != number_player and not every_fold:
@@ -56,11 +54,9 @@ def auction(common_cards=None):
                 elif player.stack > call_value:
                     dict_options['call'] = True
                 if player.stack > min_raise:
-                    #dict_options[f'raise: {min_raise}-{max_raise}'] = True
                     dict_options['raise'] = True
 
-                pot = sum(raise_list)  # wszystko co jest do wygrania na stole polozone
-                pot_table = sum(input_stack_list) - sum(bet_list)  # to co jest w puli zbudowane przed biezaca licytacja
+                pot = sum(raise_list)
 
                 # ask player for decision
                 if player.kind == 'human':
@@ -72,57 +68,20 @@ def auction(common_cards=None):
                     decision = input(player.name + options).split()
 
                 elif player.kind == 'AI':
-                    # this function return choose of AI
-                    n_fold = [gamer.live and gamer.alin for gamer in player_list].count(True)
-                    n_player_in_round = number_player - n_fold
+                    # this function returns choose of AI
+                    #  n_fold = [gamer.live and gamer.alin for gamer in player_list].count(True)
+                    #  n_player_in_round = number_player - n_fold
+                    n_player_in_round = 2
 
                     bot = AI(player.cards, dict_options, call_value, min_raise, max_raise, pot, n_player_in_round,
                              common_cards)
                     decision = bot.decision()
-                    #print(player.name, decision)
+                    #  print(player.name, decision)
 
                 elif player.kind == 'deepAI':
 
-                    n_fold = [gamer.live and gamer.alin for gamer in player_list].count(True)
-                    n_player_in_round = number_player - n_fold
+                    p_win, p_tie = probability_win(player.cards, 2, common_cards)
 
-                    p_win, p_tie = probability_win(player.cards, n_player_in_round, common_cards)
-
-                    if common_cards is None:
-                        stage = 0
-                    elif len(common_cards) == 3:
-                        stage = 1
-                    elif len(common_cards) == 4:
-                        stage = 2
-                    else:
-                        stage = 3
-
-                    # count how many players will still make a decision
-                    players_without_decision = [gamer.decision for gamer in player_list].count(False) - 1
-
-                    # info about opponent action
-                    if last_action is None:
-                        action_info = [0, 0]
-                    elif last_action[0] == 'call':
-                        action_info = [1, 0]
-                    elif last_action[0] == 'check':
-                        action_info = [2, 0]
-                    elif last_action[0] == 'raise':
-                        action_info = [3, last_action[1]]
-
-                    # calculate min price of bet
-                    if dict_options['check']:
-                        price_bet = 0
-                    elif dict_options['call']:
-                        price_bet = call_value
-                    else:
-                        price_bet = player.stack
-
-                    #observation = [p_win, p_tie, pot/2000, stage/3, players_without_decision, action_info[0]/3, action_info[1]/1000] # len vector 7, one hot encoding ?
-                    # 2 try
-                    #observation = [p_win, p_tie, pot/2000, price_bet/1000]
-                    # 3 try
-                    # prob win, prob tie, pot, if iam starting,stage round [preflop flop turn river]
                     if common_cards is None:
                         stage_round = [1, 0, 0, 0]
                     elif len(common_cards) == 3:
@@ -132,26 +91,14 @@ def auction(common_cards=None):
                     else:
                         stage_round = [0, 0, 0, 1]
 
-                    # care = False
-                    care = True
-                    for p in player_list:
-                        if p.kind == "AI":
-                            if p.decision:
-                                care = False
-
-                    #observation = [p_win, p_tie, pot/2000, care, price_bet / 1000]#.extend(stage_round)
-                    observation = [p_win, p_tie, pot / 2000]  # .extend(stage_round)
+                    observation = [p_win, p_tie, pot / 2000]
                     observation.extend(stage_round)
-                    reward = 0
-                    # reset() zwraca to za yield
-                    # step() ustawia action na wektor i odsyła odrazu tam gdzie spotka nastepnego yielda
-                    #print("przed yield")
+
                     action = yield observation, player.reward, False, player.action_used
                     player.reward = 0
-                    #print("za yield")
+
                     epsilon = action[0]
                     DNN_answer = action[1:]
-
 
                     # new try
 
@@ -161,18 +108,14 @@ def auction(common_cards=None):
                     else:
                         best_action_index = np.random.randint(0, 40)
 
-                    # algorytm przyblizania najlepszej opcji do najlepszej dostepnej opcji
-
+                    # round best action to available best action
                     # there are 5 possible set of action
                     optimal_bet = best_action_index * 25
                     if optimal_bet > player.stack:
                         optimal_bet = player.stack
 
-
-                    #print("dict option", dict_options)
-                    #print('optimal bet ', optimal_bet)
                     if dict_options['check'] and dict_options['raise']:
-                        #print('set 1')
+                        #  print('set 1')
                         if optimal_bet < abs(optimal_bet - min_raise):
                             decision = ['check']
                         elif min_raise <= optimal_bet <= max_raise:
@@ -182,7 +125,7 @@ def auction(common_cards=None):
 
                     # 2 set
                     elif dict_options['call'] and dict_options['raise']:
-                        #print('set 2')
+                        #  print('set 2')
                         if optimal_bet < abs(optimal_bet - call_value):
                             decision = ['fold']
                         elif abs(optimal_bet - call_value) < abs(optimal_bet - min_raise):
@@ -194,7 +137,7 @@ def auction(common_cards=None):
 
                     # 3 set
                     elif dict_options['call'] and not dict_options['raise']:
-                        #print('set 3')
+                        #  print('set 3')
                         if optimal_bet < abs(call_value - optimal_bet):
                             decision = ['fold']
                         elif abs(optimal_bet - player.stack) < abs(optimal_bet - call_value):
@@ -204,7 +147,7 @@ def auction(common_cards=None):
 
                     # 4 set
                     elif dict_options['check'] and not dict_options['raise']:
-                        #print('set 4')
+                        #  print('set 4')
                         if optimal_bet < abs(optimal_bet - player.stack):
                             decision = ['check']
                         else:
@@ -212,15 +155,14 @@ def auction(common_cards=None):
 
                     # 5 set
                     elif not dict_options['call'] and not dict_options['check'] and not dict_options['raise']:
-                        #print('set 5')
+                        #  print('set 5')
                         if optimal_bet < abs(optimal_bet - player.stack):
                             decision = ['fold']
                         else:
                             decision = ['all-in']
-                    #print("ai decision", decision)
+
                     # processing action
 
-                    # to nie bedzie best index
                     # convert decision to action_used
                     if decision == ['fold'] or decision == ['check']:
                         action_used = 0
@@ -233,14 +175,10 @@ def auction(common_cards=None):
 
                     player.action_used = int(action_used)
 
-
                 # Processing of player decision
 
                 if decision[0] == 'raise':
                     chips = int(decision[1])
-                    #print(player.name, decision[0], decision[1])
-                #else:
-                    #print(player.name, decision[0])
                 decision = decision[0]
 
                 if show_game:
@@ -250,7 +188,6 @@ def auction(common_cards=None):
                         print("{} decision: {}".format(player.name, decision))
 
                 if decision == 'call':
-                    last_action = ['call', 0]
                     chips = max(input_stack_list) - player.input_stack
                     if player.stack > chips:
                         player.drop(chips)
@@ -262,11 +199,9 @@ def auction(common_cards=None):
                     player.fold()
 
                 elif decision == 'check':
-                    last_action = ['check', 0]
                     player.decision = True
 
                 elif decision == 'all-in':
-                    last_action = ['raise', player.stack]
                     player.drop(player.stack)
                     for gamer in player_list:
                         # if any of player bets all-in, then each player who not bet all-in and has bet less than
@@ -276,7 +211,6 @@ def auction(common_cards=None):
                     player.allin()
 
                 elif decision == 'raise':
-                    last_action = ['raise', chips]
                     for gamer in player_list:
                         # a czy tutaj nie musi byc tak jak w przypadku all in ze gracze ktorzy mniej postawili
                         if gamer.live and gamer.decision:
@@ -286,24 +220,6 @@ def auction(common_cards=None):
                     else:
                         player.drop(player.stack)
                         player.allin()
-                    '''
-                    min_raise = 2 * raise_list[0] - raise_list[1]
-                    max_raise = player.stack
-                    chips = int(input('min raise: ' + str(min_raise) +
-                                      ', max raise: ' + str(max_raise) + '. How much :'))
-                    while not chips >= min_raise and chips <= max_raise:
-                        chips = int(input('min raise: ' + str(min_raise) +
-                                          ', max raise: ' + str(max_raise) + '. How much :'))
-                    for gamer in player_list:
-                        if gamer.live and gamer.decision:
-                            gamer.decision = False
-                    player.drop(chips)
-                    '''
-                # for i in player_list:
-                #    print(i.name, i.decision)
-                # to pozniej wyjebac
-                #for playe in player_list:
-                #    print(playe.name, ', stack: ', playe.stack, ', bet: ', playe.input_stack)
 
             # check if the every except one player fold then don't ask him about decision
             sum_live = 0
@@ -315,7 +231,6 @@ def auction(common_cards=None):
                 every_fold = True
                 break
         number_decisions = sum([player.decision for player in player_list])
-        #print('\n')
 
     # After auction players who fold or all-in have no decision made until the next round
     for player in player_list:
