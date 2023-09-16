@@ -1,9 +1,39 @@
 # Texas-Holdem-Poker-Reinforcement-Learning
 
 ## Overview:
-This project is a Python-based implementation designed to teach a deep neural network model how to play Texas Hold'em Poker in the 2-player version. It leverages reinforcement learning techniques along with TensorFlow and Keras to train an AI opponent capable of playing the popular card game. The primary objective is to create an AI that can make intelligent decisions, adapt to various game scenarios, and ultimately compete effectively against human players in a two-player Texas Hold'em Poker match.
+This project aims to teach a deep neural network model to play Texas Hold'em Poker in the 2-player version. Using reinforcement learning techniques, we train an artificial intelligence agent to make strategic decisions in a simulated poker game. The project is implemented in Python and leverages TensorFlow and Keras for the development and training of the AI model.
 
-## Project Description - How It Works:
+## Project Description
+
+This project is a comprehensive exploration of training a Deep Neural Network (DNN) model to play Texas Hold'em Poker effectively in a two-player environment. It consists of two main components: a poker game simulator and the neural network model training.
+
+### Poker Game Simulator
+
+The first component of the project is a poker game simulator, which serves as an environment generator. This simulator provides a detailed representation of the poker game state and allows users to interact with the game by sending actions to it. Key features include:
+
+- Detailed game state information (player hands, community cards, pot size, etc.).
+- User interactions: Send actions like folding, betting, or raising.
+- Realistic and dynamic game environment.
+
+The poker game simulator forms the foundation for training the AI model, offering a realistic environment for learning and strategy development.
+
+### Neural Network Model Training
+
+The second component involves building and training a Deep Neural Network (DNN) model to play Texas Hold'em Poker intelligently. Two primary training scripts are included:
+
+- **train_RL.py:** Designed for single-threaded training, allowing the model to learn strategies through poker games against opponents, such as bots or other versions of itself.
+
+- **train_RL_multiprocess.py:** Utilizes multiprocessing to accelerate training by running multiple poker games simultaneously.
+
+During the training process, the DNN model learns to make informed decisions based on the game state, opponent behavior, and historical data. The goal is to develop effective poker-playing strategies that maximize winnings and minimize losses.
+
+This project serves as an exciting experiment in the field of reinforcement learning and AI-driven gaming. Teaching a DNN model to play poker offers insights into AI's capabilities and limitations in strategic decision-making scenarios. The model's performance can be fine-tuned and evaluated over multiple training sessions, contributing to the development of more advanced AI gaming systems.
+
+Whether you're a poker enthusiast, an AI researcher, or simply curious about the convergence of AI and gaming, this project provides a valuable opportunity to explore reinforcement learning and witness a neural network's journey to outsmart opponents in a classic card game.
+
+## Installation
+
+
 
 ## Usage:
 
