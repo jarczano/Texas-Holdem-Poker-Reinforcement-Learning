@@ -31,10 +31,6 @@ This project serves as an exciting experiment in the field of reinforcement lear
 
 Whether you're a poker enthusiast, an AI researcher, or simply curious about the convergence of AI and gaming, this project provides a valuable opportunity to explore reinforcement learning and witness a neural network's journey to outsmart opponents in a classic card game.
 
-## Installation
-
-
-
 ## Usage:
 
 - Clone the repository: `git clone https://github.com/jarczano/Sudoku-Solver-Web-App`
