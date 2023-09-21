@@ -126,9 +126,9 @@ if __name__ == '__main__':
     list_win_ratio = []
     history = []
 
-    #  model1 = create_model()
+    model = create_model()
     # or load model
-    model = load_model('models/model_20002epoch-1688915279.303047.h5')
+    #  model = load_model('models/xxx.h5')
 
     model_target = create_model()
     model_target.set_weights(model.get_weights())
@@ -148,7 +148,7 @@ if __name__ == '__main__':
         processes[j].start()
 
     total_iterations = 20_000
-    completed_iterations = 15003  # change if training continues
+    completed_iterations = 0  # change if training continues
     X = []
     y = []
 
