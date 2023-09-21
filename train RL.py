@@ -1,4 +1,4 @@
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense
 import numpy as np
 from game.player_class import Player
@@ -48,9 +48,11 @@ def train(model):
     game_length_list = []
 
     n_epoch_update_model = 20
-    n_epoch_save_model = 100
+    n_epoch_save_model = 300
 
     for epoch in range(epoch_start, n_epoch):
+
+        start = time.time()
 
         for player in Player.player_list:
             player.stack = 1000
@@ -101,11 +103,14 @@ def train(model):
         next_states = np.array(next_states)
 
         # Calculate target Q-values
-        next_q_values = model_target.predict(next_states[:-1])
-        max_next_q_values = np.max(next_q_values, axis=1)
-        target_q_values = rewards[:-1] + discount * max_next_q_values
+        if next_states.shape[0] > 1:
+            next_q_values = model_target.predict(next_states[:-1])
+            max_next_q_values = np.max(next_q_values, axis=1)
+            target_q_values = rewards[:-1] + discount * max_next_q_values
 
-        target_q_values = np.append(target_q_values, rewards[-1])
+            target_q_values = np.append(target_q_values, rewards[-1])
+        else:
+            target_q_values = rewards
 
         for i in range(len(targets)):
             targets[i][actions[i]] = target_q_values[i]
@@ -145,9 +150,12 @@ def train(model):
                 file.write("Win/lose: {}\n".format(game_result_list))
                 file.write("Game length: \n{}".format(game_length_list))
 
+        stop = time.time()
+        print('number action: {}, time: {}'.format(len(rewards), stop - start))
+
 
 if __name__ == '__main__':
     model = create_model()
     # or load model
-    # model = load_model('models/xxx.h5')
+    #  model = load_model('models/xxx.h5')
     train(model)

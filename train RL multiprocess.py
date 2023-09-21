@@ -27,10 +27,10 @@ def create_model():
 
 def one_game(epsilon, weight_model, weight_model_target, queue):
     """
-    :param epsilon:
-    :param weight_model:
-    :param weight_model_target:
-    :param queue:
+    :param epsilon: epsilon-greedy
+    :param weight_model: weights main model
+    :param weight_model_target: weights target model
+    :param queue: Queue object from multiprocessing
     :return:
     """
 
@@ -84,11 +84,15 @@ def one_game(epsilon, weight_model, weight_model_target, queue):
     next_states = np.array(next_states)
 
     # Calculate target Q-values
-    next_q_values = model_target.predict(next_states[:-1])
-    max_next_q_values = np.max(next_q_values, axis=1)
-    target_q_values = rewards[:-1] + discount * max_next_q_values
+    if next_states.shape[0] > 1:
+        next_q_values = model_target.predict(next_states[:-1])
+        max_next_q_values = np.max(next_q_values, axis=1)
+        target_q_values = rewards[:-1] + discount * max_next_q_values
 
-    target_q_values = np.append(target_q_values, rewards[-1])
+        target_q_values = np.append(target_q_values, rewards[-1])
+    else:
+
+        target_q_values = rewards
 
     for i in range(len(targets)):
         targets[i][actions[i]] = target_q_values[i]
@@ -124,7 +128,7 @@ if __name__ == '__main__':
 
     #  model1 = create_model()
     # or load model
-    model = load_model('models/model_15003epoch-1688848258.370219.h5')
+    model = load_model('models/model_20002epoch-1688915279.303047.h5')
 
     model_target = create_model()
     model_target.set_weights(model.get_weights())

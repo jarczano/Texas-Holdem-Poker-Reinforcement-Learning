@@ -101,9 +101,7 @@ def auction(common_cards=None):
                     epsilon = action[0]
                     DNN_answer = action[1:]
 
-                    # new try
-
-                    # select option with highest propability
+                    # select option with highest probability
                     if np.random.random() > epsilon:
                         best_action_index = np.argmax(DNN_answer)
                     else:
@@ -168,11 +166,11 @@ def auction(common_cards=None):
                     if decision == ['fold'] or decision == ['check']:
                         action_used = 0
                     elif decision == ['call']:
-                        action_used = (call_value / 25) + 1
+                        action_used = call_value / 25
                     elif decision == ['all-in']:
-                        action_used = (player.stack / 25) + 1
+                        action_used = player.stack / 25
                     elif decision[0] == 'raise':
-                        action_used = (decision[1] / 25) + 1
+                        action_used = decision[1] / 25
 
                     player.action_used = int(action_used)
 
@@ -184,7 +182,7 @@ def auction(common_cards=None):
 
                 if show_game:
                     if decision == 'raise':
-                        print("{} stack: {} decision: {} {}".format(player.name, player.stack,decision, chips))
+                        print("{} stack: {} decision: {} {}".format(player.name, player.stack, decision, chips))
                     else:
                         print("{} decision: {}".format(player.name, decision))
 
@@ -213,7 +211,6 @@ def auction(common_cards=None):
 
                 elif decision == 'raise':
                     for gamer in player_list:
-                        # a czy tutaj nie musi byc tak jak w przypadku all in ze gracze ktorzy mniej postawili
                         if gamer.live and gamer.decision:
                             gamer.decision = False
                     if player.stack > chips:
